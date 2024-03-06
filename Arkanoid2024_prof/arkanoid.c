@@ -9,23 +9,24 @@ struct { double x; double y;  double vx; double vy;} ball;
 
 Uint64 prev, now; // timers
 double delta_t;  // durée frame en ms
-int x_vault;
+int x_destination;
 
 SDL_Window* pWindow = NULL;
 SDL_Surface* win_surf = NULL;
 SDL_Surface* plancheSprites = NULL;
 
-SDL_Rect srcBg = { 0,128, 96,128 }; // x,y, w,h (0,0) en haut a gauche
-SDL_Rect srcBall = { 0,96,24,24 };
-SDL_Rect scrVaiss = { 128,0,128,32 };
+SDL_Rect imgFond = {192, 128, 64, 64 }; // x,y, w,h (0,0) en haut a gauche
+SDL_Rect imgBalle = {80, 66, 16, 12 };
+SDL_Rect imgVaisseau = {384, 192, 98, 16 };
 
 
 void init()
 {
 	pWindow = SDL_CreateWindow("Arknoid", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 600, 600, SDL_WINDOW_SHOWN);
-	win_surf = SDL_GetWindowSurface(pWindow);
-	plancheSprites = SDL_LoadBMP("./sprites.bmp");
-	SDL_SetColorKey(plancheSprites, true, 0);  // 0: 00/00/00 noir -> transparent
+    SDL_SetWindowResizable(pWindow, SDL_FALSE);
+    win_surf = SDL_GetWindowSurface(pWindow);
+    plancheSprites = SDL_LoadBMP("./Arkanoid_sprites.bmp");
+    SDL_SetColorKey(plancheSprites, true, 0); // 0: 00/00/00 noir -> transparent
 
 	ball.x = win_surf->w / 2;
 	ball.y = win_surf->h / 2;
@@ -40,41 +41,41 @@ void init()
 void draw()
 {
 	// remplit le fond 
-	SDL_Rect dest = { 0,0,0,0 };
-	for (int j = 0; j < win_surf->h; j+=128)
-		for (int i = 0; i < win_surf->w; i += 96)
+	SDL_Rect plateau = {0, 0, 0, 0 };
+	for (int j = 0; j < win_surf->h; j+=64)
+		for (int i = 0; i < win_surf->w; i += 64)
 		{
-			dest.x = i;
-			dest.y = j;
-			SDL_BlitSurface(plancheSprites, &srcBg, win_surf, &dest);
+            plateau.x = i;
+            plateau.y = j;
+			SDL_BlitSurface(plancheSprites, &imgFond, win_surf, &plateau);
 		}
 
 	
 	// affiche balle
 	SDL_Rect dstBall = {ball.x, ball.y, 0, 0};
-	SDL_BlitSurface(plancheSprites, &srcBall, win_surf, &dstBall);
+	SDL_BlitSurface(plancheSprites, &imgBalle, win_surf, &dstBall);
 
 	// dedplacement
 	ball.x += ball.vx;// / delta_t;
 	ball.y += ball.vy;// / delta_t;
 
 	// collision bord
-	if ((ball.x < 1) || (ball.x > (win_surf->w - 25)))
+	if ((ball.x < 1) || (ball.x > (win_surf->w - 16)))
 		ball.vx *= -1;
-	if ((ball.y < 1) || (ball.y > (win_surf->h - 25)))
+	if ((ball.y < 1) || (ball.y > (win_surf->h - 12)))
 		ball.vy *= -1;
 
 	// touche bas -> rouge
-	if (ball.y >(win_surf->h - 25))
-		srcBall.y = 64;
-	// touche bas -> vert
+	if (ball.y >(win_surf->h - 12))
+        imgBalle.x = 96;
+	// touche bas -> rouge
 	if (ball.y < 1)
-		srcBall.y = 96;
+        imgBalle.x = 80;
 
 	// vaisseau
-	dest.x = x_vault;
-	dest.y = win_surf->h - 32;
-	SDL_BlitSurface(plancheSprites, &scrVaiss, win_surf, &dest);
+	plateau.x = x_destination;
+    plateau.y = win_surf->h - 32;
+	SDL_BlitSurface(plancheSprites, &imgVaisseau, win_surf, &plateau);
 }
 
 
@@ -94,9 +95,13 @@ int main(int argc, char** argv)
 		SDL_PumpEvents();
         const Uint8* keys = SDL_GetKeyboardState(NULL);
         if (keys[SDL_SCANCODE_LEFT])
-            x_vault -= 10;
+            if (x_destination - 10 > (win_surf->w - 98))
+            {
+                x_destination -= 10;
+            }
+
         if (keys[SDL_SCANCODE_RIGHT])
-            x_vault += 10;
+            x_destination += 10;
         if (keys[SDL_SCANCODE_ESCAPE])
             quit=true;
 
