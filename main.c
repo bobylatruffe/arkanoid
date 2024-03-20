@@ -4,7 +4,6 @@
 
 SDL_Window *g_pWindow = NULL;
 SDL_Renderer *g_pRenderer = NULL;
-SDL_Surface *g_pSurface = NULL;
 
 SDL_Texture *g_pBackground = NULL;
 SDL_Rect rect_src_bg = {0};
@@ -66,9 +65,6 @@ void init_background() {
 
         rect_dst_bg.w = 30;
         rect_dst_bg.h = 30;
-
-        SDL_FreeSurface(g_pSurface);
-
     } else
         printf("g_pBackground : KO\n");
 }
