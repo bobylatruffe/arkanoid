@@ -13,7 +13,8 @@ link_directories(${SDL2IMAGE_LIBRARY_DIRS})
 include_directories(${SDL2_INCLUDE_DIRS})
 message(STATUS "SDL2_INCLUDE_DIRS = ${SDL2_INCLUDE_DIRS}")
 
-add_executable(arkanoid main.c)
+add_executable(arkanoid
+        main.c)
 message(STATUS "SDL2_LIBRARIE" = ${SDL2_LIBRARIES})
 target_link_libraries(arkanoid ${SDL2_LIBRARIES} ${SDL2IMAGE_LIBRARIES})
 
