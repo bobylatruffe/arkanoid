@@ -70,7 +70,6 @@ void init_spaceship() {
 
         rect_dst_spaceship.x = WINDOW_W / 2 - 58 / 2;
         rect_dst_spaceship.y = WINDOW_H - 24;
-
     }
     else
         printf("g_pBoard : KO\n");
