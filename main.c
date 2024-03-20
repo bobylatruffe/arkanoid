@@ -9,16 +9,34 @@ SDL_Texture *g_pBoard = NULL;
 SDL_Rect rect_src_bg = {0};
 SDL_Rect rect_dst_bg = {0};
 
+int spaceship_w = 58;
+int spaceship_h = 12;
 SDL_Rect rect_src_spaceship = {0};
 SDL_Rect rect_dst_spaceship = {0};
 
+typedef int (*getX)();
+typedef int (*getX)();
+
+typedef struct ball {
+    SDL_Point coord;
+    SDL_Point speed;
+    SDL_Rect texture;
+} ball;
+
+int size_ball_w = 14;
+int size_ball_h = 14;
+struct {
+    int vx;
+    int vy;
+} speed_ball = {1, 1};
 SDL_Rect rect_src_ball = {0};
 SDL_Rect rect_dst_ball = {0};
 
-const int FPS = 60;
-const int DELAY = 1000 / FPS;
-const int WINDOW_W = 600;
-const int WINDOW_H = 800;
+int FPS = 1;
+//const int DELAY = 1000 / FPS;
+int DELAY;
+const int WINDOW_W = 500;
+const int WINDOW_H = 500;
 
 int nb_current_fps = 0;
 
@@ -27,6 +45,52 @@ Uint32 frame_start = 0,
         frame_delay = 0,
         frame_delay_for_counting_fps = 0;
 
+void ball_collision_spaceship() {
+    int closestX, closestY;
+
+    // Pour l'axe X
+    if (rect_dst_ball.x + size_ball_w / 2 < rect_dst_spaceship.x) {
+        closestX = rect_dst_spaceship.x;
+    } else if (rect_dst_ball.x + size_ball_w / 2 > rect_dst_spaceship.x + spaceship_w) {
+        closestX = rect_dst_spaceship.x + spaceship_w;
+    } else {
+        closestX = rect_dst_ball.x + size_ball_w / 2;
+    }
+
+    // Pour l'axe Y
+    if (rect_dst_ball.y + size_ball_h / 2 < rect_dst_spaceship.y) {
+        closestY = rect_dst_spaceship.y;
+    } else if (rect_dst_ball.y + size_ball_h / 2 > rect_dst_spaceship.y + spaceship_h) {
+        closestY = rect_dst_spaceship.y + spaceship_h;
+    } else {
+        closestY = rect_dst_ball.y + size_ball_h / 2;
+    }
+
+    // Calculer la distance entre le centre du cercle et ce point le plus proche
+    int distanceX = rect_dst_ball.x + size_ball_w / 2 - closestX;
+    int distanceY = rect_dst_ball.y + size_ball_h / 2 - closestY;
+    int distanceSquared = (distanceX * distanceX) + (distanceY * distanceY);
+
+    // Si la distance est inférieure ou égale au carré du rayon du cercle, il y a collision
+    if (distanceSquared <= (6 * 6)) {
+        speed_ball.vx *= -1;
+        speed_ball.vy *= -1;
+    }
+
+}
+
+void move_ball() {
+//    printf("ball(%d, %d)\n", rect_dst_ball.x, rect_dst_ball.y);
+
+    rect_dst_ball.x += speed_ball.vx;
+    rect_dst_ball.y += speed_ball.vy;
+
+    if (rect_dst_ball.x + size_ball_w >= WINDOW_W || rect_dst_ball.x <= 0)
+        speed_ball.vx *= -1;
+
+    if (rect_dst_ball.y + size_ball_h >= WINDOW_H || rect_dst_ball.y <= 0)
+        speed_ball.vy *= -1;
+}
 
 void render_contents() {
     SDL_RenderClear(g_pRenderer);
@@ -42,10 +106,17 @@ void render_contents() {
     SDL_RenderCopy(g_pRenderer, g_pBoard, &rect_src_spaceship, &rect_dst_spaceship);
     SDL_RenderCopy(g_pRenderer, g_pBoard, &rect_src_ball, &rect_dst_ball);
 
+    move_ball();
+
+    ball_collision_spaceship();
+
     SDL_RenderPresent(g_pRenderer);
 }
 
 void render() {
+    // TODO : Juste pour débug
+    DELAY = 1000 / FPS;
+
     frame_start = SDL_GetTicks();
 
     render_contents();
@@ -75,10 +146,10 @@ void init_ball() {
         rect_src_ball.w = 7;
         rect_src_ball.h = 7;
 
-        rect_dst_ball.w = 14;
-        rect_dst_ball.h = 14;
-        rect_dst_ball.x = WINDOW_W / 2 - 14 / 2;
-        rect_dst_ball.y = WINDOW_H - 38;
+        rect_dst_ball.w = size_ball_w;
+        rect_dst_ball.h = size_ball_h;
+        rect_dst_ball.x = WINDOW_W / 2 - size_ball_w / 2;
+        rect_dst_ball.y = WINDOW_H - 50;
 
     } else
         printf("g_pBoard (ball) : KO\n");
@@ -90,10 +161,10 @@ void init_spaceship() {
 
         rect_src_spaceship.x = 260;
         rect_src_spaceship.y = 143;
-        rect_src_spaceship.w = rect_dst_spaceship.w = 58;
-        rect_src_spaceship.h = rect_dst_spaceship.h = 12;
+        rect_src_spaceship.w = rect_dst_spaceship.w = spaceship_w;;
+        rect_src_spaceship.h = rect_dst_spaceship.h = spaceship_h;
 
-        rect_dst_spaceship.x = WINDOW_W / 2 - 58 / 2;
+        rect_dst_spaceship.x = WINDOW_W / 2 - spaceship_w / 2;
         rect_dst_spaceship.y = WINDOW_H - 24;
     } else
         printf("g_pBoard (spaceship) : KO\n");
@@ -160,6 +231,23 @@ int main() {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT)
                 game_continu = false;
+            if (event.type == SDL_KEYDOWN) {
+                if (event.key.keysym.scancode == SDL_SCANCODE_KP_1) {
+                    FPS = 1;
+                }
+                if (event.key.keysym.scancode == SDL_SCANCODE_KP_2) {
+                    FPS = 20;
+                }
+                if (event.key.keysym.scancode == SDL_SCANCODE_KP_3) {
+                    FPS = 50;
+                }
+                if (event.key.keysym.scancode == SDL_SCANCODE_KP_4) {
+                    FPS = 100;
+                }
+            }
+            if (event.type == SDL_MOUSEMOTION) {
+                rect_dst_spaceship.x = event.motion.x - spaceship_w / 2;
+            }
         }
 
         render();
