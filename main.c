@@ -5,9 +5,12 @@
 SDL_Window *g_pWindow = NULL;
 SDL_Renderer *g_pRenderer = NULL;
 
-SDL_Texture *g_pBackground = NULL;
+SDL_Texture *g_pBoard = NULL;
 SDL_Rect rect_src_bg = {0};
 SDL_Rect rect_dst_bg = {0};
+
+SDL_Rect rect_src_spaceship = {0};
+SDL_Rect rect_dst_spaceship = {0};
 
 const int FPS = 60;
 const int DELAY = 1000 / FPS;
@@ -24,11 +27,13 @@ void render_contents() {
 
     for (int i = 0; i < WINDOW_W; i += 30) {
         for (int j = 0; j < WINDOW_H; j += 30) {
-            SDL_RenderCopy(g_pRenderer, g_pBackground, &rect_src_bg, &rect_dst_bg);
+            SDL_RenderCopy(g_pRenderer, g_pBoard, &rect_src_bg, &rect_dst_bg);
             rect_dst_bg.x = i;
             rect_dst_bg.y = j;
         }
     }
+
+    SDL_RenderCopy(g_pRenderer, g_pBoard, &rect_src_spaceship, &rect_dst_spaceship);
 
     SDL_RenderPresent(g_pRenderer);
 }
@@ -54,10 +59,27 @@ void render() {
     }
 }
 
+void init_spaceship() {
+    if(g_pBoard) {
+        printf("g_pBoard : OK\n");
+
+        rect_src_spaceship.x = 260;
+        rect_src_spaceship.y = 143;
+        rect_src_spaceship.w = rect_dst_spaceship.w = 58;
+        rect_src_spaceship.h = rect_dst_spaceship.h = 12;
+
+        rect_dst_spaceship.x = WINDOW_W / 2 - 58 / 2;
+        rect_dst_spaceship.y = WINDOW_H - 24;
+
+    }
+    else
+        printf("g_pBoard : KO\n");
+}
+
 void init_background() {
-    g_pBackground = IMG_LoadTexture(g_pRenderer, "assets/arkanoid.png");
-    if (g_pBackground) {
-        printf("g_pBackground : OK\n");
+    g_pBoard = IMG_LoadTexture(g_pRenderer, "assets/arkanoid.png");
+    if (g_pBoard) {
+        printf("g_pBoard : OK\n");
         rect_src_bg.x = 130;
         rect_src_bg.y = 385;
         rect_src_bg.w = 30;
@@ -66,7 +88,7 @@ void init_background() {
         rect_dst_bg.w = 30;
         rect_dst_bg.h = 30;
     } else
-        printf("g_pBackground : KO\n");
+        printf("g_pBoard : KO\n");
 }
 
 void init_renderer() {
@@ -76,6 +98,7 @@ void init_renderer() {
         printf("init_renderer (g_pRenderer) : OK\n");
 
         init_background();
+        init_spaceship();
     } else
         printf("init_renderer (g_pRenderer) : KO\n");
 }
