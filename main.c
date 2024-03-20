@@ -93,13 +93,13 @@ void init_spaceship() {
         rect_dst_spaceship.x = WINDOW_W / 2 - 58 / 2;
         rect_dst_spaceship.y = WINDOW_H - 24;
     } else
-        printf("g_pBoard : KO\n");
+        printf("g_pBoard (spaceship) : KO\n");
 }
 
 void init_background() {
     g_pBoard = IMG_LoadTexture(g_pRenderer, "assets/arkanoid.png");
     if (g_pBoard) {
-        printf("g_pBoard : OK\n");
+        printf("g_pBoard (background) : OK\n");
         rect_src_bg.x = 130;
         rect_src_bg.y = 385;
         rect_src_bg.w = 30;
@@ -108,7 +108,7 @@ void init_background() {
         rect_dst_bg.w = 30;
         rect_dst_bg.h = 30;
     } else
-        printf("g_pBoard : KO\n");
+        printf("g_pBoard (background) : KO\n");
 }
 
 void init_renderer() {
@@ -147,7 +147,6 @@ void init() {
     } else
         printf("SDL_INIT_EVERTYTHING : KO\n");
 }
-
 
 int main() {
     init();
