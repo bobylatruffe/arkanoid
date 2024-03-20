@@ -22,7 +22,10 @@ const int WINDOW_H = 800;
 
 int nb_current_fps = 0;
 
-Uint32 frame_start = 0, frame_end = 0, frame_delay = 0, frame_delay_for_counting_fps = 0;
+Uint32 frame_start = 0,
+        frame_end = 0,
+        frame_delay = 0,
+        frame_delay_for_counting_fps = 0;
 
 
 void render_contents() {
