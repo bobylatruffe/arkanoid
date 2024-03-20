@@ -12,6 +12,9 @@ SDL_Rect rect_dst_bg = {0};
 SDL_Rect rect_src_spaceship = {0};
 SDL_Rect rect_dst_spaceship = {0};
 
+SDL_Rect rect_src_ball = {0};
+SDL_Rect rect_dst_ball = {0};
+
 const int FPS = 60;
 const int DELAY = 1000 / FPS;
 const int WINDOW_W = 600;
@@ -34,6 +37,7 @@ void render_contents() {
     }
 
     SDL_RenderCopy(g_pRenderer, g_pBoard, &rect_src_spaceship, &rect_dst_spaceship);
+    SDL_RenderCopy(g_pRenderer, g_pBoard, &rect_src_ball, &rect_dst_ball);
 
     SDL_RenderPresent(g_pRenderer);
 }
@@ -59,9 +63,27 @@ void render() {
     }
 }
 
+void init_ball() {
+    if (g_pBoard) {
+        printf("g_pBoard (ball) : OK\n");
+
+        rect_src_ball.x = 463;
+        rect_src_ball.y = 142;
+        rect_src_ball.w = 7;
+        rect_src_ball.h = 7;
+
+        rect_dst_ball.w = 14;
+        rect_dst_ball.h = 14;
+        rect_dst_ball.x = WINDOW_W / 2 - 14 / 2;
+        rect_dst_ball.y = WINDOW_H - 38;
+
+    } else
+        printf("g_pBoard (ball) : KO\n");
+}
+
 void init_spaceship() {
-    if(g_pBoard) {
-        printf("g_pBoard : OK\n");
+    if (g_pBoard) {
+        printf("g_pBoard (spaceship): OK\n");
 
         rect_src_spaceship.x = 260;
         rect_src_spaceship.y = 143;
@@ -70,8 +92,7 @@ void init_spaceship() {
 
         rect_dst_spaceship.x = WINDOW_W / 2 - 58 / 2;
         rect_dst_spaceship.y = WINDOW_H - 24;
-    }
-    else
+    } else
         printf("g_pBoard : KO\n");
 }
 
@@ -98,6 +119,7 @@ void init_renderer() {
 
         init_background();
         init_spaceship();
+        init_ball();
     } else
         printf("init_renderer (g_pRenderer) : KO\n");
 }
