@@ -8,151 +8,103 @@
 typedef struct Size {
     int w;
     int h;
-} s_Size;
+} s_size;
 
 typedef struct game_object {
     SDL_Point coord;
     SDL_Point speed;
     SDL_Rect texture;
-    s_Size size;
-} s_Game_object;
+    s_size size;
+} s_gmae_obj;
+
+typedef struct app_context {
+    SDL_Window * p_window;
+    SDL_Renderer  * p_renderer;
+} s_app_context;
 
 typedef void (*Render)();
 
 typedef struct to_renderer {
     Render to_rend;
+
     struct to_renderer *next;
-} s_Renders;
+} s_renders;
 
-/* global variable */
+SDL_Renderer *init_renderer(SDL_Window *p_window) {
+    SDL_Renderer *p_renderer = SDL_CreateRenderer(p_window, -1, SDL_RENDERER_ACCELERATED);
 
-SDL_Renderer *g_pRenderer = NULL;
-
-SDL_Texture *g_pBoard = NULL;
-SDL_Rect rect_src_bg = {0};
-SDL_Rect rect_dst_bg = {0};
-
-const int FPS = 60;
-const int DELAY = 1000 / FPS;
-const int WINDOW_W = 500;
-const int WINDOW_H = 500;
-
-int nb_current_fps = 0;
-
-Uint32 frame_start = 0,
-        frame_end = 0,
-        frame_delay = 0,
-        frame_delay_for_counting_fps = 0;
-
-void render_background() {
-    for (int i = 0; i < WINDOW_W; i += 30) {
-        for (int j = 0; j < WINDOW_H; j += 30) {
-            SDL_RenderCopy(g_pRenderer, g_pBoard, &rect_src_bg, &rect_dst_bg);
-            rect_dst_bg.x = i;
-            rect_dst_bg.y = j;
-        }
-    }
+    return p_renderer;
 }
 
-void render_content(s_Renders *renders) {
-    SDL_RenderClear(g_pRenderer);
+SDL_Window *init_window(s_size *size) {
+    SDL_Window *p_window = SDL_CreateWindow("Arkanoid",
+                                            SDL_WINDOWPOS_CENTERED,
+                                            SDL_WINDOWPOS_CENTERED,
+                                            size->w, size->h,
+                                            SDL_WINDOW_SHOWN);
 
-    while (renders) {
-        renders->to_rend();
-        renders = renders->next;
+    return p_window;
+}
+
+bool init() {
+    return !SDL_Init(SDL_INIT_EVERYTHING);
+}
+
+void render() {
+    static int desired_fps = 60;
+    static int real_fps = 0;
+    static int delay_desired_per_frame = 1000 / 60;
+    static Uint32 time_start_frame = 0;
+    static Uint32 delay_render_this_frame = 0;
+    static Uint32 delay_total = 0;
+
+    time_start_frame = SDL_GetTicks();
+    // ici render le vrai contenu
+    delay_render_this_frame = SDL_GetTicks() - time_start_frame;
+
+    if(delay_render_this_frame < delay_desired_per_frame){
+        SDL_Delay(delay_desired_per_frame - delay_render_this_frame);
     }
 
-    SDL_RenderPresent(g_pRenderer);
-}
+    delay_total += SDL_GetTicks() - time_start_frame;
+    real_fps++;
 
-void render(s_Renders *renders) {
-    frame_start = SDL_GetTicks();
-
-    render_content(renders);
-
-    frame_end = SDL_GetTicks();
-    frame_delay = frame_end - frame_start;
-    if (frame_delay < DELAY) {
-        SDL_Delay(DELAY - frame_delay);
+    if(delay_total >= 1000) {
+        printf("real_fps : %d\n", real_fps);
+        real_fps = 0;
+        delay_total = 0;
     }
-
-    frame_delay_for_counting_fps += SDL_GetTicks() - frame_start;
-    nb_current_fps++;
-
-    if (frame_delay_for_counting_fps >= 1000) {
-        printf("nb fps : %d\n", nb_current_fps);
-        nb_current_fps = 0;
-        frame_delay_for_counting_fps = 0;
-    }
-}
-
-void init_background() {
-    g_pBoard = IMG_LoadTexture(g_pRenderer, "assets/arkanoid.png");
-    if (g_pBoard) {
-        printf("g_pBoard (background) : OK\n");
-        rect_src_bg.x = 130;
-        rect_src_bg.y = 385;
-        rect_src_bg.w = 30;
-        rect_src_bg.h = 30;
-
-        rect_dst_bg.w = 30;
-        rect_dst_bg.h = 30;
-    } else
-        printf("g_pBoard (background) : KO\n");
-}
-
-void init_renderer(SDL_Window *p_window) {
-    g_pRenderer = SDL_CreateRenderer(p_window, -1, SDL_RENDERER_ACCELERATED);
-
-    if (g_pRenderer) {
-        printf("init_renderer (g_pRenderer) : OK\n");
-
-        init_background();
-    } else
-        printf("init_renderer (g_pRenderer) : KO\n");
-}
-
-void init_window(SDL_Window *p_window) {
-    p_window = SDL_CreateWindow("Arkanoid",
-                                SDL_WINDOWPOS_CENTERED,
-                                SDL_WINDOWPOS_CENTERED,
-                                WINDOW_W, WINDOW_H,
-                                SDL_WINDOW_SHOWN);
-
-    if (p_window) {
-        printf("init_window (g_pWindow) : OK\n");
-
-        init_renderer(p_window);
-    } else
-        printf("init_window (g_pWindow) : KO\n");
-}
-
-void init(SDL_Window *p_window) {
-    if (!SDL_Init(SDL_INIT_EVERYTHING)) {
-        printf("SDL_INIT_EVERTYTHING : OK\n");
-
-        init_window(p_window);
-    } else
-        printf("SDL_INIT_EVERTYTHING : KO\n");
 }
 
 int main() {
-    SDL_Window *p_window = NULL;
-    init(p_window);
-
-    s_Renders *renders = malloc(sizeof(s_Renders));
-    renders->to_rend = render_background;
-    renders->next = NULL;
-
-
-    bool game_continu = true;
-    SDL_Event event;
-    while (game_continu) {
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT)
-                game_continu = false;
-        }
-
-        render(renders);
+    if (!init()) {
+        printf("sdl_init_everything : KO\n");
+        return -1;
     }
+
+    s_size window_size = {500, 500};
+    SDL_Window *p_window = init_window(&window_size);
+    if (!p_window) {
+        printf("p_window : KO\n");
+        return -1;
+    }
+
+    SDL_Renderer *p_renderer = init_renderer(p_window);
+    if (!p_renderer) {
+        printf("p_renderer : KO\n");
+        return -1;
+    }
+
+    s_app_context * app_ctx = malloc(sizeof(s_app_context));
+    app_ctx->p_window = p_window;
+    app_ctx->p_renderer = p_renderer;
+
+    bool game_continues = true;
+    while(game_continues) {
+//        handle_events();
+//        update();
+        render();
+    }
+
+    free(app_ctx);
 }
