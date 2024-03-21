@@ -81,7 +81,12 @@ void check_collision_ball_spaceship(s_game_obj *ball, s_game_obj *spaceship) {
 
     // Si la distance est inférieure ou égale au carré du rayon du cercle, il y a collision
     if (distanceSquared <= (6 * 6)) {
-        ball->sx *= -1;
+        printf("%d %d\n", ball->tx_dst.x + ball->tx_dst.w / 2, spaceship->tx_dst.x + spaceship->tx_dst.w / 2);
+        if (ball->tx_dst.x + ball->tx_dst.w / 2 < spaceship->tx_dst.x + spaceship->tx_dst.w / 2)
+            ball->sx *= -1;
+        else
+            ball->sx *= 1;
+
         ball->sy *= -1;
     }
 }
@@ -94,8 +99,17 @@ void handle_events(s_app_context *app_ctxt, bool *game_continues) {
         if (event.type == SDL_QUIT)
             *game_continues = false;
 
-        if (event.type == SDL_MOUSEMOTION) {
-            app_ctxt->mouse.x = event.motion.x;
+//        if (event.type == SDL_MOUSEMOTION) {
+//            app_ctxt->mouse.x = event.motion.x;
+//            app_ctxt->mouse.y = event.motion.y;
+//        }
+
+        if (event.type == SDL_MOUSEBUTTONDOWN) {
+            app_ctxt->mouse.x = event.button.x;
+            app_ctxt->mouse.y = event.button.y;
+        }
+        if (event.type == SDL_MOUSEBUTTONUP) {
+            app_ctxt->mouse.x = 0;
         }
     }
 
@@ -162,8 +176,17 @@ void update(s_app_context *app_ctx,
 // GESTION VAISSEAU
 // TODO : Prévoir que peut-être un appui long sur une touche augmente de manière croissante la vitesse de déplacement
 // alors qu'un seul appuis ne déplace que d'un pixel.
-    spaceship->tx_dst.x = app_ctx->window_size.w / 2 - spaceship->tx_dst.w / 2;
-    spaceship->tx_dst.x += app_ctx->off_set_x * spaceship->sx;
+//    spaceship->tx_dst.x = app_ctx->window_size.w / 2 - spaceship->tx_dst.w / 2;
+//    spaceship->tx_dst.x += app_ctx->off_set_x * spaceship->sx;
+
+// ----- debug
+    if (app_ctx->mouse.x != 0) {
+        ball_obj->sx = -1;
+        ball_obj->sy = -1;
+        ball_obj->tx_dst.x = app_ctx->mouse.x;
+        ball_obj->tx_dst.y = app_ctx->mouse.y;
+    }
+// -----
 
 // Pour contrôler avec la souris
 //    spaceship->tx_dst.x = app_ctx->mouse.x - spaceship->tx_dst.w / 2;
@@ -171,13 +194,13 @@ void update(s_app_context *app_ctx,
 
 // GESTION BALLE
     ball_obj->tx_dst.x += ball_obj->sx;
-    ball_obj->tx_dst.y += ball_obj->sy;
+    ball_obj->tx_dst.y -= ball_obj->sy;
 
     check_collision_ball_spaceship(ball_obj, spaceship);
 
     if (ball_obj->tx_dst.y + ball_obj->tx_dst.h >= app_ctx->window_size.h) {
-        ball_obj->tx_dst.x = 12;
-        ball_obj->tx_dst.y = 12;
+        ball_obj->tx_dst.x = 1;
+        ball_obj->tx_dst.y = 1;
     }
     if (ball_obj->tx_dst.x + ball_obj->tx_dst.w >= app_ctx->window_size.w ||
         ball_obj->tx_dst.x <= 0) {
@@ -241,8 +264,10 @@ int main() {
     app_ctx->p_board = board;
     app_ctx->off_set_x = 0;
 
+    printf("%d %d\n", window_size.w, window_size.h);
+
     s_game_obj *bg_obj = init_game_obj(130, 385, 30, 30, 0, 0, 30, 30, 0, 0);
-    s_game_obj *ball_obj = init_game_obj(260, 490, 22, 22, 12, 12, 12, 12, 5, 3);
+    s_game_obj *ball_obj = init_game_obj(260, 490, 22, 22, window_size.w / 2 , window_size.h - 22, 12, 12, 1, 1);
     s_game_obj *spaceship = init_game_obj(260, 143, 56, 11,
                                           window_size.w / 2 - 56 / 2, window_size.h - 11,
                                           56, 11,
