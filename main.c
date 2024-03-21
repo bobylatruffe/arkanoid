@@ -160,6 +160,8 @@ void update(s_app_context *app_ctx,
     SDL_GetWindowSize(app_ctx->p_window, &app_ctx->window_size.w, &app_ctx->window_size.h);
 
 // GESTION VAISSEAU
+// TODO : Prévoir que peut-être un appui long sur une touche augmente de manière croissante la vitesse de déplacement
+// alors qu'un seul appuis ne déplace que d'un pixel.
     spaceship->tx_dst.x = app_ctx->window_size.w / 2 - spaceship->tx_dst.w / 2;
     spaceship->tx_dst.x += app_ctx->off_set_x * spaceship->sx;
 
@@ -244,7 +246,7 @@ int main() {
     s_game_obj *spaceship = init_game_obj(260, 143, 56, 11,
                                           window_size.w / 2 - 56 / 2, window_size.h - 11,
                                           56, 11,
-                                          5, 0);
+                                          10, 0);
 
     bool game_continues = true;
     while (game_continues) {
@@ -256,4 +258,5 @@ int main() {
     free(app_ctx);
     free(bg_obj);
     free(ball_obj);
+    free(spaceship);
 }
