@@ -14,8 +14,21 @@ include_directories(${SDL2_INCLUDE_DIRS})
 message(STATUS "SDL2_INCLUDE_DIRS = ${SDL2_INCLUDE_DIRS}")
 
 add_executable(arkanoid
-        main.c)
+        main.c
+        type.h
+        init.h
+        init.c
+        render.c
+        render.h
+        object.h
+        object.c
+        update.h
+        update.c
+        check.h
+        check.c)
 message(STATUS "SDL2_LIBRARIE" = ${SDL2_LIBRARIES})
-target_link_libraries(arkanoid ${SDL2_LIBRARIES} ${SDL2IMAGE_LIBRARIES})
+target_link_libraries(arkanoid ${SDL2_LIBRARIES} ${SDL2IMAGE_LIBRARIES} m)
+
+target_compile_definitions(arkanoid PRIVATE DEBUG)
 
 file(COPY assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
