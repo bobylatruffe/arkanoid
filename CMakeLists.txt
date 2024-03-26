@@ -14,7 +14,11 @@ include_directories(${SDL2_INCLUDE_DIRS})
 message(STATUS "SDL2_INCLUDE_DIRS = ${SDL2_INCLUDE_DIRS}")
 
 add_executable(arkanoid
-        main.c)
+        main.c
+        init.h
+        type.h
+        render.h
+        update.h)
 
 message(STATUS "SDL2_LIBRARIE" = ${SDL2_LIBRARIES})
 target_link_libraries(arkanoid ${SDL2_LIBRARIES} ${SDL2IMAGE_LIBRARIES} m)
