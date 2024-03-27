@@ -20,28 +20,43 @@ void worldToScreen(GameContext *gameContext, Obj *obj) {
     obj->wireframe.h = (int) round(obj->h);
 }
 
-void checkCollisionBallWithShip(GameContext *gameContext, Obj *ball, Obj *ship) {
+//void checkCollisionBallWithShip(GameContext *ctx, Obj *ball, Obj *ship) {
+//    SDL_Point ballCenter = {(int) round(ball->x + ball->w / 2), (int) round(ball->y + ball->h)};
+//
+//    SDL_Point ballNextPos = {(int) round(ball->x + ball->w / 2),
+//                             (int) round(ball->y + ball->vy * ctx->deltaTime)};
+//
+////    SDL_SetRenderDrawColor(ctx->renderer, 0, 0, 0, 255);
+//////    SDL_RenderClear(ctx->renderer);
+////    SDL_SetRenderDrawColor(ctx->renderer, 255, 255, 0, 255);
+////    SDL_RenderDrawPoint(ctx->renderer, ballCenter.x, ballCenter.y);
+////    SDL_RenderDrawPoint(ctx->renderer, ballNextPos.x, ballNextPos.y);
+////
+////    SDL_RenderDrawLine(ctx->renderer, ballCenter.x, ballCenter.y, ballNextPos.x, ballNextPos.y);
+////    SDL_RenderPresent(ctx->renderer);
+//
+//    if (SDL_IntersectRectAndLine(&ctx->ship->wireframe, &ballCenter.x, &ballCenter.y, &ballNextPos.x, &ballNextPos.y)) {
+//        printf("ok\n");
+//        ball->vy *= -1;
+//    }
+//}
 
-}
 
-void checkCollisionBallWalls(const GameContext *gameContext, Obj *ball) {
+
+void checkCollisionBallWithWalls(const GameContext *gameContext, Obj *ball) {
     if (ball->y <= 0) {
         ball->y = 0;
         ball->vy *= -1;
-    }
-    else if (ball->x + ball->w >= gameContext->window->w) {
+    } else if (ball->x + ball->w >= gameContext->window->w) {
         ball->x = gameContext->window->w - ball->w;
         ball->vx *= -1;
-    }
-    else if (ball->x <= 0) {
+    } else if (ball->x <= 0) {
         ball->x = 0;
         ball->vx *= -1;
-    }
-    else if (ball->y >= gameContext->window->h) {
+    } else if (ball->y >= gameContext->window->h) {
         ball->y = 0;
     }
 }
-
 
 void eventHandler(GameContext *gameContext) {
     SDL_Event event;
@@ -80,7 +95,7 @@ void update(GameContext *gameContext) {
     gameContext->ball->y += gameContext->ball->vy * gameContext->deltaTime;
 
     checkCollisionBallWithShip(gameContext, gameContext->ball, gameContext->ship);
-    checkCollisionBallWalls(gameContext, gameContext->ball);
+    checkCollisionBallWithWalls(gameContext, gameContext->ball);
 
     worldToScreen(gameContext, gameContext->ball);
     worldToScreen(gameContext, gameContext->ship);
