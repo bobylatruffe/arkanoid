@@ -11,7 +11,7 @@ void render_content(GameContext *gameContext) {
     SDL_SetRenderDrawColor(gameContext->renderer, 255, 0, 0, 255);
     SDL_RenderFillRect(gameContext->renderer, &gameContext->ball->wireframe);
 
-    SDL_SetRenderDrawColor(gameContext->renderer, 255, 255, 250, 255);
+    SDL_SetRenderDrawColor(gameContext->renderer, 255, 255, 255, 255);
     SDL_RenderFillRect(gameContext->renderer, &gameContext->ship->wireframe);
 
     SDL_RenderPresent(gameContext->renderer);
@@ -44,7 +44,7 @@ void render(GameContext *gameContext) {
     current_fps++;
     cumul_seconds += SDL_GetTicks() - start_frame;
     if (cumul_seconds >= 1000) {
-        printf("current_fps : %d\n", current_fps);
+//        printf("current_fps : %d\n", current_fps);
         cumul_seconds = 0;
         current_fps = 0;
     }

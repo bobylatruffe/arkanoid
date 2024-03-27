@@ -13,12 +13,12 @@ Obj *createObj(double x, double y, double vx, double vy, double w, double h) {
 }
 
 int main() {
-    GameContext *gameContext = init(500, 500);
+    GameContext *gameContext = init(700, 800);
 
-    Obj *ball = createObj(250, 250, 0.0, 0.0, 50, 50);
+    Obj *ball = createObj(250, 1, 500, 500 , 10, 10);
     gameContext->ball = ball;
 
-    Obj *ship = createObj(250, 450, 10, 0, 100, 25);
+    Obj *ship = createObj(250, 760, 1000, 0, 100, 10);
     gameContext->ship = ship;
 
     gameContext->isGameRunning = true;

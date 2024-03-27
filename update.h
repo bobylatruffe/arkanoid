@@ -14,22 +14,42 @@ void screenToWorld(GameContext *gameContext, Obj *obj, int screenX, int screenY)
 }
 
 void worldToScreen(GameContext *gameContext, Obj *obj) {
-    obj->wireframe.x = (int) round(obj->x - obj->w / 2);
-    obj->wireframe.y = (int) round(obj->y - obj->h / 2);
+    obj->wireframe.x = (int) round(obj->x);
+    obj->wireframe.y = (int) round(obj->y);
     obj->wireframe.w = (int) round(obj->w);
     obj->wireframe.h = (int) round(obj->h);
+}
+
+void checkCollisionBallWithShip(GameContext *gameContext, Obj *ball, Obj *ship) {
 
 }
 
-void update(GameContext *gameContext) {
-    SDL_GetWindowSize(gameContext->window->sdlWindow, &gameContext->window->w, &gameContext->window->h);
+void checkCollisionBallWalls(const GameContext *gameContext, Obj *ball) {
+    if (ball->y <= 0) {
+        ball->y = 0;
+        ball->vy *= -1;
+    }
+    else if (ball->x + ball->w >= gameContext->window->w) {
+        ball->x = gameContext->window->w - ball->w;
+        ball->vx *= -1;
+    }
+    else if (ball->x <= 0) {
+        ball->x = 0;
+        ball->vx *= -1;
+    }
+    else if (ball->y >= gameContext->window->h) {
+        ball->y = 0;
+    }
+}
 
+
+void eventHandler(GameContext *gameContext) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT)
             gameContext->isGameRunning = false;
         if (event.type == SDL_MOUSEMOTION) {
-            screenToWorld(gameContext, gameContext->ball, event.motion.x, event.motion.y);
+//            screenToWorld(gameContext, gameContext->ball, event.motion.x, event.motion.y);
         }
         if (event.type == SDL_MOUSEBUTTONDOWN) {
         }
@@ -37,10 +57,10 @@ void update(GameContext *gameContext) {
 
     const Uint8 *keys = SDL_GetKeyboardState(NULL);
     if (keys[SDL_SCANCODE_RIGHT]) {
-        gameContext->ship->x += gameContext->ship->vx;
+        gameContext->ship->x += gameContext->ship->vx * gameContext->deltaTime;
     }
     if (keys[SDL_SCANCODE_LEFT]) {
-        gameContext->ship->x -= gameContext->ship->vx;
+        gameContext->ship->x -= gameContext->ship->vx * gameContext->deltaTime;
     }
     if (keys[SDL_SCANCODE_SPACE]) {
         printf("angle = %lf\n",
@@ -49,15 +69,21 @@ void update(GameContext *gameContext) {
                ) * 180 / M_PI
         );
     }
+}
 
-    Obj *ball = gameContext->ball;
-    ball->x += ball->vx * gameContext->deltaTime;
-    ball->y += ball->vy * gameContext->deltaTime;
+void update(GameContext *gameContext) {
+    SDL_GetWindowSize(gameContext->window->sdlWindow, &gameContext->window->w, &gameContext->window->h);
 
-    Obj *ship = gameContext->ship;
+    eventHandler(gameContext);
 
-    worldToScreen(gameContext, ball);
-    worldToScreen(gameContext, ship);
+    gameContext->ball->x += gameContext->ball->vx * gameContext->deltaTime;
+    gameContext->ball->y += gameContext->ball->vy * gameContext->deltaTime;
+
+    checkCollisionBallWithShip(gameContext, gameContext->ball, gameContext->ship);
+    checkCollisionBallWalls(gameContext, gameContext->ball);
+
+    worldToScreen(gameContext, gameContext->ball);
+    worldToScreen(gameContext, gameContext->ship);
 }
 
 #endif //ARKANOID_UPDATE_H

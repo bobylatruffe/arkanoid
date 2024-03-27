@@ -37,12 +37,14 @@ GameContext *init(int w, int h) {
                                              w, h, SDL_WINDOW_SHOWN);
     if (!sdlWindow)
         infoAndExit(gameContext, "SDL_CreateWindow");
+
     Window *window = calloc(1, sizeof(Window));
     window->sdlWindow = sdlWindow;
     gameContext->window = window;
     SDL_GetWindowSize(gameContext->window->sdlWindow, &gameContext->window->w, &gameContext->window->h);
 
     gameContext->renderer = SDL_CreateRenderer(gameContext->window->sdlWindow, -1, SDL_RENDERER_ACCELERATED);
+
     if (!gameContext->renderer)
         infoAndExit(gameContext, "SDL_CreateRenderer");
 
