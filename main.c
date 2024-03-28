@@ -13,9 +13,9 @@ Obj *createObj(double x, double y, double vx, double vy, double w, double h) {
 }
 
 int main() {
-    GameContext *gameContext = init(700, 800);
+    GameContext *gameContext = init(700, 1200);
 
-    Obj *ball = createObj(250, 1, 500, 500 , 10, 10);
+    Obj *ball = createObj(250, 100, 0, 900, 50, 50);
     gameContext->ball = ball;
 
     Obj *ship = createObj(250, 760, 1000, 0, 100, 10);
@@ -23,7 +23,8 @@ int main() {
 
     gameContext->isGameRunning = true;
     while (gameContext->isGameRunning) {
-        update(gameContext);
+        if (gameContext->initRenderFinished == 0)
+            update(gameContext);
         render(gameContext);
     }
 

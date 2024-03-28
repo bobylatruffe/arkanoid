@@ -41,20 +41,24 @@ void worldToScreen(GameContext *gameContext, Obj *obj) {
 //    }
 //}
 
+double checkCollisionBallWithShip(GameContext *ctx) {
 
+}
 
-void checkCollisionBallWithWalls(const GameContext *gameContext, Obj *ball) {
+void checkCollisionBallWithWalls(const GameContext *gameContext) {
+    Obj *ball = gameContext->ball;
+
     if (ball->y <= 0) {
-        ball->y = 0;
+        ball->y = 1;
         ball->vy *= -1;
     } else if (ball->x + ball->w >= gameContext->window->w) {
         ball->x = gameContext->window->w - ball->w;
         ball->vx *= -1;
     } else if (ball->x <= 0) {
-        ball->x = 0;
+        ball->x = 1;
         ball->vx *= -1;
     } else if (ball->y >= gameContext->window->h) {
-        ball->y = 0;
+        ball->y = 1;
     }
 }
 
@@ -91,11 +95,13 @@ void update(GameContext *gameContext) {
 
     eventHandler(gameContext);
 
-    gameContext->ball->x += gameContext->ball->vx * gameContext->deltaTime;
-    gameContext->ball->y += gameContext->ball->vy * gameContext->deltaTime;
+    gameContext->ball->oldx = gameContext->ball->x;
+    gameContext->ball->oldy = gameContext->ball->y;
+//    gameContext->ball->x += gameContext->ball->vx * gameContext->deltaTime;
+//    gameContext->ball->y += gameContext->ball->vy * gameContext->deltaTime;
 
-    checkCollisionBallWithShip(gameContext, gameContext->ball, gameContext->ship);
-    checkCollisionBallWithWalls(gameContext, gameContext->ball);
+    checkCollisionBallWithShip(gameContext);
+    checkCollisionBallWithWalls(gameContext);
 
     worldToScreen(gameContext, gameContext->ball);
     worldToScreen(gameContext, gameContext->ship);

@@ -13,6 +13,7 @@ typedef struct {
     double x, y;
     double vx, vy;
     double w, h;
+    double oldx, oldy;
 } Obj;
 
 typedef struct {
@@ -26,6 +27,7 @@ typedef struct {
     SDL_Renderer *renderer;
     bool isGameRunning;
     double deltaTime;
+    int initRenderFinished;
     Obj *ball;
     Obj *ship;
 } GameContext;

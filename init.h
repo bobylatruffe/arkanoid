@@ -33,7 +33,7 @@ GameContext *init(int w, int h) {
 
     GameContext *gameContext = calloc(1, sizeof(GameContext));
 
-    SDL_Window *sdlWindow = SDL_CreateWindow("Arkanoid", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+    SDL_Window *sdlWindow = SDL_CreateWindow("Arkanoid", 2000, SDL_WINDOWPOS_CENTERED,
                                              w, h, SDL_WINDOW_SHOWN);
     if (!sdlWindow)
         infoAndExit(gameContext, "SDL_CreateWindow");
@@ -44,9 +44,10 @@ GameContext *init(int w, int h) {
     SDL_GetWindowSize(gameContext->window->sdlWindow, &gameContext->window->w, &gameContext->window->h);
 
     gameContext->renderer = SDL_CreateRenderer(gameContext->window->sdlWindow, -1, SDL_RENDERER_ACCELERATED);
-
     if (!gameContext->renderer)
         infoAndExit(gameContext, "SDL_CreateRenderer");
+
+    gameContext->initRenderFinished = 2;
 
     return gameContext;
 }
